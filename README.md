@@ -4,9 +4,12 @@
 > 
 > Inspired by [Karpathy's autoresearch](https://github.com/karpathy/autoresearch). Packaged for OpenClaw.
 
+[![GitHub stars](https://img.shields.io/github/stars/rmarji/autoresearch-openclaw.svg?style=social)](https://github.com/rmarji/autoresearch-openclaw)
 [![npm version](https://img.shields.io/npm/v/autoresearch-openclaw.svg?style=flat-square)](https://www.npmjs.com/package/autoresearch-openclaw)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 [![built for OpenClaw](https://img.shields.io/badge/built%20for-OpenClaw-brightgreen?style=flat-square)](https://github.com/openclaw/openclaw)
+
+> ⭐ **If this saves you time, a star helps others find it.**
 
 ## What It Does
 
