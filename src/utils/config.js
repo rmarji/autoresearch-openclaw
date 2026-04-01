@@ -8,13 +8,12 @@ export const SESSIONS_DIR = path.join(CONFIG_DIR, 'sessions');
 
 export const DEFAULTS = {
   version: '1.0.0',
-  model: 'claude-opus-4-6',
-  claudePath: 'claude',
+  model: 'gpt-4o',
+  apiBase: 'https://api.openai.com/v1',
   defaultBudget: 20,
   defaultGoal: 'maximize',
+  metricTimeout: 60000,
   outputDir: SESSIONS_DIR,
-  git: { autoCommit: true },
-  skills: {},
 };
 
 export async function loadConfig() {
@@ -64,4 +63,10 @@ export function formatDate(date) {
 
 export function formatNumber(num) {
   return Number.isInteger(num) ? num.toString() : num.toFixed(4);
+}
+
+export function improvementPct(baseline, best, goal = 'maximize') {
+  if (baseline === 0) return '∞';
+  const delta = goal === 'maximize' ? best - baseline : baseline - best;
+  return (delta / Math.abs(baseline) * 100).toFixed(1);
 }

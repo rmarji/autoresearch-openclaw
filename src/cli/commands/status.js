@@ -1,66 +1,72 @@
 import chalk from 'chalk';
 import boxen from 'boxen';
-import os from 'os';
-import path from 'path';
-import fs from 'fs-extra';
+import { loadConfig, isInitialized } from '../../utils/config.js';
+import { listSessions } from '../../core/results.js';
 
 async function statusCommand() {
-  const CONFIG_DIR = path.join(os.homedir(), '.autoresearch');
-  const CONFIG_FILE = path.join(CONFIG_DIR, 'config.json');
-  const RESULTS_DIR = path.join(CONFIG_DIR, 'results');
-  
-  // Load config
-  let config = {};
-  try {
-    if (await fs.pathExists(CONFIG_FILE)) {
-      config = await fs.readJson(CONFIG_FILE);
-    }
-  } catch {}
-  
-  if (!config.model) {
-    console.log(chalk.yellow('\n⚠️  AutoResearch not initialized.'));
+  if (!isInitialized()) {
+    console.log(chalk.yellow('\n  AutoResearch not initialized.'));
     console.log(chalk.gray('   Run ') + chalk.cyan('autoresearch init') + chalk.gray(' first.\n'));
     return;
   }
-  
-  // Load sessions
-  let sessions = [];
-  if (await fs.pathExists(RESULTS_DIR)) {
-    const dirs = await fs.readdir(RESULTS_DIR);
-    for (const dir of dirs) {
-      const sessionPath = path.join(RESULTS_DIR, dir);
-      const stat = await fs.stat(sessionPath);
-      if (stat.isDirectory()) {
-        sessions.push({
-          id: dir,
-          date: stat.mtime
-        });
-      }
+
+  const config = await loadConfig();
+  const sessions = await listSessions();
+
+  // Compute aggregate stats
+  let totalKept = 0;
+  let totalIter = 0;
+  let bestGain = 0;
+  const recentSessions = sessions.slice(0, 5);
+
+  for (const s of sessions) {
+    totalIter += s.iterations || 0;
+    totalKept += s.kept || 0;
+    if (s.startMetric != null && s.endMetric != null && s.startMetric !== 0) {
+      const pct = (s.endMetric - s.startMetric) / Math.abs(s.startMetric) * 100;
+      if (pct > bestGain) bestGain = pct;
     }
   }
-  
-  // Print dashboard
+
+  // Dashboard
+  const dashLines = [
+    chalk.bold.white('AutoResearch Dashboard'),
+    '',
+    chalk.gray(`Sessions:     `) + chalk.white(`${sessions.length} total`),
+    chalk.gray(`Iterations:   `) + chalk.white(`${totalIter} total, ${totalKept} kept`),
+    chalk.gray(`Best gain:    `) + (bestGain > 0 ? chalk.green(`+${bestGain.toFixed(1)}%`) : chalk.white('—')),
+    chalk.gray(`Model:        `) + chalk.white(config.model || 'not set'),
+    chalk.gray(`Budget:       `) + chalk.white(`${config.defaultBudget || 20} iterations`)
+  ];
+
   console.log('');
-  console.log(boxen(
-    chalk.bold.white('AutoResearch Dashboard') + '\n\n' +
-    chalk.gray(`Sessions: ${sessions.length} total`) + '\n' +
-    chalk.gray(`Model: ${config.model}`) + '\n' +
-    chalk.gray(`Budget: ${config.defaultBudget || 20} iterations`),
-    { padding: 1, borderStyle: 'round', borderColor: 'cyan' }
-  ));
+  console.log(boxen(dashLines.join('\n'), {
+    padding: 1,
+    borderStyle: 'round',
+    borderColor: 'cyan'
+  }));
   console.log('');
-  
-  if (sessions.length === 0) {
-    console.log(chalk.gray('No sessions yet. Run:'));
+
+  if (recentSessions.length === 0) {
+    console.log(chalk.gray('No sessions yet. Get started:'));
     console.log(chalk.cyan('  autoresearch demo'));
-    console.log('');
+    console.log(chalk.cyan('  autoresearch run --file <path> --metric "command"'));
   } else {
     console.log(chalk.bold('Recent Sessions'));
-    for (const s of sessions.slice(0, 5)) {
-      console.log(`  ${chalk.cyan(s.id)}`);
+    console.log(chalk.gray('─'.repeat(60)));
+    for (const s of recentSessions) {
+      const startStr = s.startMetric != null ? s.startMetric.toFixed(2) : '?';
+      const endStr = s.endMetric != null ? s.endMetric.toFixed(2) : '?';
+      let changeStr = '';
+      if (s.startMetric != null && s.endMetric != null && s.startMetric !== 0) {
+        const pct = ((s.endMetric - s.startMetric) / Math.abs(s.startMetric) * 100).toFixed(0);
+        changeStr = pct >= 0 ? chalk.green(` (+${pct}%)`) : chalk.red(` (${pct}%)`);
+      }
+      const iterStr = `${s.iterations || 0} iters`;
+      console.log(`  ${chalk.cyan(s.name.padEnd(30))} ${startStr} → ${endStr}${changeStr}  (${iterStr})`);
     }
-    console.log('');
   }
+  console.log('');
 }
 
 export default statusCommand;
