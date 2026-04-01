@@ -41,8 +41,9 @@ async function listAllSessions() {
     const endMetric = s.endMetric != null ? s.endMetric.toFixed(4) : '—';
     let change = '—';
     if (s.startMetric != null && s.endMetric != null && s.startMetric !== 0) {
-      const pct = ((s.endMetric - s.startMetric) / Math.abs(s.startMetric) * 100).toFixed(1);
-      change = pct >= 0 ? chalk.green(`+${pct}%`) : chalk.red(`${pct}%`);
+      const pct = (s.endMetric - s.startMetric) / Math.abs(s.startMetric) * 100;
+      const pctStr = pct.toFixed(1);
+      change = pct >= 0 ? chalk.green(`+${pctStr}%`) : chalk.red(`${pctStr}%`);
     }
 
     table.push([

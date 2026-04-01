@@ -57,7 +57,6 @@ export async function runLoop(options) {
   let currentMetric = baseline;
   let bestMetric = baseline;
   let bestContent = await fs.readFile(filePath, 'utf8');
-  const history = [];
   const iterations = [];
   let interrupted = false;
 
@@ -101,9 +100,9 @@ export async function runLoop(options) {
     let proposal;
     try {
       if (mockAgent) {
-        proposal = mockAgent(currentContent, history, i);
+        proposal = mockAgent(currentContent, iterations, i);
       } else {
-        proposal = await proposeChange(currentContent, history, {
+        proposal = await proposeChange(currentContent, iterations, {
           apiBase, apiKey, model, goal, skill
         });
       }
@@ -171,8 +170,9 @@ export async function runLoop(options) {
       }
 
       const pct = improvementPct(entry.metricBefore, newMetric, goal);
+      const pctStr = pct === Infinity ? '∞' : pct.toFixed(1);
       iterSpinner.succeed(
-        `Iteration ${i}/${budget}: ${entry.metricBefore.toFixed(4)} → ${chalk.green(newMetric.toFixed(4))} (${pct > 0 ? '+' : ''}${pct}%) ${chalk.green('✓ kept')} — ${proposal.hypothesis}`
+        `Iteration ${i}/${budget}: ${entry.metricBefore.toFixed(4)} → ${chalk.green(newMetric.toFixed(4))} (${pct > 0 ? '+' : ''}${pctStr}%) ${chalk.green('✓ kept')} — ${proposal.hypothesis}`
       );
     } else {
       await revertChange(fileName, cwd);
@@ -181,7 +181,6 @@ export async function runLoop(options) {
       );
     }
 
-    history.push(entry);
     iterations.push(entry);
     await appendResult(sessionDir, entry);
     await appendHypothesis(sessionDir, entry);
@@ -201,7 +200,8 @@ export async function runLoop(options) {
   console.log(chalk.bold('═══════════════════════════════════════════'));
   console.log(`  Baseline:     ${baseline.toFixed(4)}`);
   console.log(`  Best:         ${chalk.green(bestMetric.toFixed(4))}`);
-  console.log(`  Improvement:  ${chalk.green(improvement + '%')}`);
+  const improvStr = improvement === Infinity ? '∞' : improvement.toFixed(1);
+  console.log(`  Improvement:  ${chalk.green(improvStr + '%')}`);
   console.log(`  Kept:         ${kept}/${iterations.length} changes`);
   console.log(`  Results:      ${chalk.cyan(sessionDir)}`);
   console.log(chalk.bold('═══════════════════════════════════════════'));

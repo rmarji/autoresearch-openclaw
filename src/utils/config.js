@@ -66,7 +66,7 @@ export function formatNumber(num) {
 }
 
 export function improvementPct(baseline, best, goal = 'maximize') {
-  if (baseline === 0) return '∞';
+  if (baseline === 0) return Infinity;
   const delta = goal === 'maximize' ? best - baseline : baseline - best;
-  return (delta / Math.abs(baseline) * 100).toFixed(1);
+  return parseFloat((delta / Math.abs(baseline) * 100).toFixed(1));
 }

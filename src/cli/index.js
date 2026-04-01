@@ -39,7 +39,13 @@ export async function run() {
     .requiredOption('--metric <cmd>', 'Shell command that outputs a single float')
     .option('--budget <n>', 'Max iterations', '20')
     .option('--session <name>', 'Session name for logs')
-    .option('--goal <goal>', 'Optimization goal (maximize or minimize)', 'maximize')
+    .option('--goal <goal>', 'Optimization goal (maximize or minimize)', (value) => {
+      if (!['maximize', 'minimize'].includes(value)) {
+        console.error(`Error: --goal must be "maximize" or "minimize", got "${value}"`);
+        process.exit(1);
+      }
+      return value;
+    }, 'maximize')
     .option('--program <path>', 'Custom program.md for agent instructions')
     .option('--skill <name>', 'Use a bundled skill preset')
     .action(runCommand);

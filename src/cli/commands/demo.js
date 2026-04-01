@@ -3,7 +3,7 @@ import boxen from 'boxen';
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import { runLoop } from '../../core/loop.js';
 
 const SAMPLE_TEMPLATE = `Subject: Quick idea for {{company}}
@@ -81,9 +81,9 @@ function createMockAgent() {
   };
 }
 
-function runGit(cmd, cwd) {
+function runGit(args, cwd) {
   return new Promise((resolve, reject) => {
-    exec(cmd, { cwd }, (error, stdout, stderr) => {
+    execFile('git', args, { cwd }, (error, stdout, stderr) => {
       if (error) reject(new Error(stderr.trim() || error.message));
       else resolve(stdout.trim());
     });
@@ -132,9 +132,9 @@ echo "$SCORE"
     await fs.chmod(metricPath, '755');
 
     // Initialize git repo
-    await runGit('git init', tmpDir);
-    await runGit('git add .', tmpDir);
-    await runGit('git commit -m "initial template"', tmpDir);
+    await runGit(['init'], tmpDir);
+    await runGit(['add', '.'], tmpDir);
+    await runGit(['commit', '-m', 'initial template'], tmpDir);
 
     // Run optimization loop with mock agent
     await runLoop({

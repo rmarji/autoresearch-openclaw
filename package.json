@@ -15,15 +15,20 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "commander": "^12.0.0",
-    "inquirer": "^9.0.0",
-    "chalk": "^5.0.0",
-    "ora": "^8.0.0",
-    "fs-extra": "^11.0.0",
-    "dayjs": "^1.11.0",
     "boxen": "^8.0.0",
-    "cli-table3": "^0.6.0"
+    "chalk": "^5.0.0",
+    "cli-table3": "^0.6.0",
+    "commander": "^12.0.0",
+    "fs-extra": "^11.0.0",
+    "inquirer": "^9.0.0",
+    "ora": "^8.0.0"
   },
+  "files": [
+    "bin/",
+    "src/",
+    "README.md",
+    "LICENSE"
+  ],
   "keywords": [
     "openclaw",
     "autoresearch",

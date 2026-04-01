@@ -59,8 +59,9 @@ async function statusCommand() {
       const endStr = s.endMetric != null ? s.endMetric.toFixed(2) : '?';
       let changeStr = '';
       if (s.startMetric != null && s.endMetric != null && s.startMetric !== 0) {
-        const pct = ((s.endMetric - s.startMetric) / Math.abs(s.startMetric) * 100).toFixed(0);
-        changeStr = pct >= 0 ? chalk.green(` (+${pct}%)`) : chalk.red(` (${pct}%)`);
+        const pct = (s.endMetric - s.startMetric) / Math.abs(s.startMetric) * 100;
+        const pctStr = pct.toFixed(0);
+        changeStr = pct >= 0 ? chalk.green(` (+${pctStr}%)`) : chalk.red(` (${pctStr}%)`);
       }
       const iterStr = `${s.iterations || 0} iters`;
       console.log(`  ${chalk.cyan(s.name.padEnd(30))} ${startStr} → ${endStr}${changeStr}  (${iterStr})`);

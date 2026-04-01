@@ -42,7 +42,8 @@ export async function appendHypothesis(sessionDir, entry) {
 export async function writeReport(sessionDir, data) {
   const { sessionName, file, metric, goal, budget, baseline, bestMetric, iterations } = data;
 
-  const improvement = improvementPct(baseline, bestMetric, goal);
+  const improvementRaw = improvementPct(baseline, bestMetric, goal);
+  const improvement = improvementRaw === Infinity ? '∞' : improvementRaw.toFixed(1);
 
   const kept = iterations.filter(i => i.kept).length;
   const reverted = iterations.length - kept;

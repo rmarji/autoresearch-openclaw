@@ -2,10 +2,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import chalk from 'chalk';
 import boxen from 'boxen';
-import os from 'os';
-
-const CONFIG_DIR = path.join(os.homedir(), '.autoresearch');
-const CONFIG_FILE = path.join(CONFIG_DIR, 'config.json');
+import { CONFIG_DIR, CONFIG_FILE } from '../../utils/config.js';
 
 async function initCommand() {
   console.log('');
